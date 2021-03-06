@@ -66,6 +66,9 @@
             android:layout_marginStart="6dp"
             android:layout_marginTop="@dimen/movies_list_top_margin"
             android:layout_marginEnd="6dp"
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            app:spanCount="2"
+            tools:listitem="@layout/view_holder_movie"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 

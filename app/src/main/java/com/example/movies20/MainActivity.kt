@@ -2,8 +2,9 @@ package com.example.movies20
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.example.movies20.moviedetails.MoviesDetailsFragment
-import com.example.movies20.movies.MoviesListFragment
+import com.example.movies20.model.Movie
+import com.example.movies20.features.features.moviesdetails.MoviesDetailsFragment
+import com.example.movies20.features.movies.MoviesListFragment
 
 class MainActivity : AppCompatActivity(), MoviesListFragment.MovieItemClickListener,
     MoviesDetailsFragment.MovieDetailsBackClickListener {
@@ -17,9 +18,8 @@ class MainActivity : AppCompatActivity(), MoviesListFragment.MovieItemClickListe
         }
     }
 
-    override fun onMovieSelected() {
-        routeDetailMovie()
-
+    override fun onMovieSelected(movie: Movie) {
+        routeDetailMovie(movie)
     }
 
     override fun onMovieDeselected() {
@@ -30,17 +30,17 @@ class MainActivity : AppCompatActivity(), MoviesListFragment.MovieItemClickListe
         supportFragmentManager.beginTransaction()
             .replace(
                 R.id.main_container,
-                MoviesListFragment(),
+                MoviesListFragment.create(),
                 MoviesListFragment::class.java.simpleName
             )
             .commit()
     }
 
-    private fun routeDetailMovie() {
+    private fun routeDetailMovie(movie: Movie) {
         supportFragmentManager.beginTransaction()
             .add(
                 R.id.main_container,
-                MoviesDetailsFragment(),
+                MoviesDetailsFragment.create(movie),
                 MoviesDetailsFragment::class.java.simpleName
             )
             .addToBackStack("trans:${MoviesDetailsFragment::class.java.simpleName}")
