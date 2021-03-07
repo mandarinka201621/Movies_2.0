@@ -11,6 +11,7 @@ import androidx.core.widget.ImageViewCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
 import com.example.movies20.R
 import com.example.movies20.model.Movie
 
@@ -46,7 +47,7 @@ class MovieListAdapter(
         private val movieLenText: TextView = itemView.findViewById(R.id.film_time_text)
 
         fun bind(movie: Movie, onClickCard: (item: Movie) -> Unit) {
-            movieImage.setImageResource(movie.imageRes)
+            movieImage.load(movie.imageUrl)
 
             val likeColor = if (movie.isLiked) {
                 R.color.pink_light
@@ -64,17 +65,15 @@ class MovieListAdapter(
             }
 
             pgText.text = "${movie.pgAge}+"
-            genreText.text = movie.genre
+            genreText.text = movie.genres.joinToString { it.name }
             reviewsText.text = "${movie.reviewCount} REVIEWS"
             titleText.text = movie.title
-            movieLenText.text = movie.runningTime
+            movieLenText.text = "${movie.runningTime} MIN"
 
             itemView.setOnClickListener {
                 onClickCard(movie)
             }
         }
-
-
     }
 
     class MoviesCallback : DiffUtil.ItemCallback<Movie>() {

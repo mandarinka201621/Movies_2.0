@@ -1,4 +1,4 @@
-package com.example.movies20.features.features.moviesdetails
+package com.example.movies20.features.moviesdetails
 
 import android.content.Context
 import android.content.res.ColorStateList
@@ -9,13 +9,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.widget.ImageViewCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
 import com.example.movies20.R
+import com.example.movies20.di.MovieRepositoryProvider
 import com.example.movies20.model.Movie
+import kotlinx.coroutines.launch
 
 class MoviesDetailsFragment : Fragment() {
 
@@ -32,19 +37,40 @@ class MoviesDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val movieData = arguments?.getSerializable(PARAM_MOVIE_DATA) as? Movie ?: return
+        val movieId = arguments?.getSerializable(PARAM_MOVIE_DATA) as? Int ?: return
 
-        updateMovieDetailsInfo(movieData)
         view.findViewById<RecyclerView>(R.id.recycler_actors).apply {
-            val adapter = ActorsListAdapter()
             this.layoutManager = LinearLayoutManager(view.context, RecyclerView.HORIZONTAL, false)
-            this.adapter = adapter
-            adapter.submitList(movieData.actors)
+            this.adapter = ActorsListAdapter()
+        }
+
+        lifecycleScope.launch {
+            val repository =
+                (requireActivity() as MovieRepositoryProvider).provideMovieRepository()
+            val movie = repository.loadMovie(movieId)
+
+            if (movie != null) {
+                bindUI(view, movie)
+            } else {
+                showMovieNotFoundError()
+            }
         }
 
         view.findViewById<View>(R.id.back_button_layout)?.setOnClickListener {
             listener?.onMovieDeselected()
         }
+    }
+
+    private fun showMovieNotFoundError() {
+        Toast.makeText(requireContext(), R.string.error_movie_not_found, Toast.LENGTH_LONG)
+            .show()
+    }
+
+    private fun bindUI(view: View, movie: Movie) {
+        updateMovieDetailsInfo(movie)
+        val adapter =
+            view.findViewById<RecyclerView>(R.id.recycler_actors).adapter as ActorsListAdapter
+        adapter.submitList(movie.actors)
     }
 
     override fun onAttach(context: Context) {
@@ -62,13 +88,14 @@ class MoviesDetailsFragment : Fragment() {
 
     private fun updateMovieDetailsInfo(movie: Movie) {
         view?.findViewById<ImageView>(R.id.movie_logo_image)
-            ?.setImageResource(movie.detailImageRes)
+            ?.load(movie.detailImageUrl)
 
         view?.findViewById<TextView>(R.id.movie_age_restrictions_text)?.text =
             context?.getString(R.string.movies_list_allowed_age_template, movie.pgAge)
 
         view?.findViewById<TextView>(R.id.movie_name_text)?.text = movie.title
-        view?.findViewById<TextView>(R.id.movie_tags_text)?.text = movie.genre
+        view?.findViewById<TextView>(R.id.movie_tags_text)?.text =
+            movie.genres.joinToString { it.name }
         view?.findViewById<TextView>(R.id.movie_reviews_count_text)?.text =
             context?.getString(R.string.movies_list_reviews_template, movie.reviewCount)
         view?.findViewById<TextView>(R.id.movie_storyline_text)?.text = movie.storyLine
@@ -98,11 +125,11 @@ class MoviesDetailsFragment : Fragment() {
     }
 
     companion object {
-        private const val PARAM_MOVIE_DATA = "movie_data"
+        private const val PARAM_MOVIE_DATA = "movie_Id"
 
-        fun create(movie: Movie) = MoviesDetailsFragment().also {
+        fun create(movieId: Int) = MoviesDetailsFragment().also {
             val args = bundleOf(
-                PARAM_MOVIE_DATA to movie
+                PARAM_MOVIE_DATA to movieId
             )
             it.arguments = args
         }

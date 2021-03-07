@@ -6,11 +6,13 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.movies20.R
-import com.example.movies20.model.DataGenerated
+import com.example.movies20.di.MovieRepositoryProvider
 import com.example.movies20.model.Movie
+import kotlinx.coroutines.launch
 
 class MoviesListFragment : Fragment() {
 
@@ -43,7 +45,16 @@ class MoviesListFragment : Fragment() {
             }
 
             this.adapter = adapter
-            adapter.submitList(DataGenerated.generateMovieList())
+            loadDataToAdapter(adapter)
+        }
+    }
+
+    private fun loadDataToAdapter(adapter: MovieListAdapter) {
+        val repository = (requireActivity() as MovieRepositoryProvider).provideMovieRepository()
+        lifecycleScope.launch {
+            val moviesData = repository.loadMovies()
+
+            adapter.submitList(moviesData)
         }
     }
 

@@ -51,6 +51,8 @@ dependencies {
 
     //for coroutines
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1"
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.2'
+
+    implementation("io.coil-kt:coil:1.1.1")
 
 }

@@ -1,4 +1,4 @@
-package com.example.movies20.features.features.moviesdetails
+package com.example.movies20.features.moviesdetails
 
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
 import com.example.movies20.R
 import com.example.movies20.model.Actor
 
@@ -32,7 +33,7 @@ class ActorsListAdapter() : ListAdapter<Actor, ActorsListAdapter.ViewHolder>(Dif
         private val actorName: TextView = itemView.findViewById(R.id.name_actor)
 
         fun bind(actor: Actor) {
-            actorImage.setImageResource(actor.imageRes)
+            actorImage.load(actor.imageUrl)
             actorName.text = actor.name
         }
     }

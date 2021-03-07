@@ -2,12 +2,18 @@ package com.example.movies20
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.example.movies20.data.JsonMovieRepository
+import com.example.movies20.data.MovieRepository
+import com.example.movies20.di.MovieRepositoryProvider
 import com.example.movies20.model.Movie
-import com.example.movies20.features.features.moviesdetails.MoviesDetailsFragment
+import com.example.movies20.features.moviesdetails.MoviesDetailsFragment
 import com.example.movies20.features.movies.MoviesListFragment
 
 class MainActivity : AppCompatActivity(), MoviesListFragment.MovieItemClickListener,
-    MoviesDetailsFragment.MovieDetailsBackClickListener {
+    MoviesDetailsFragment.MovieDetailsBackClickListener, MovieRepositoryProvider {
+
+    private val jsonMovieRepository = JsonMovieRepository(this)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -40,7 +46,7 @@ class MainActivity : AppCompatActivity(), MoviesListFragment.MovieItemClickListe
         supportFragmentManager.beginTransaction()
             .add(
                 R.id.main_container,
-                MoviesDetailsFragment.create(movie),
+                MoviesDetailsFragment.create(movie.id),
                 MoviesDetailsFragment::class.java.simpleName
             )
             .addToBackStack("trans:${MoviesDetailsFragment::class.java.simpleName}")
@@ -50,4 +56,6 @@ class MainActivity : AppCompatActivity(), MoviesListFragment.MovieItemClickListe
     private fun routeBack() {
         supportFragmentManager.popBackStack()
     }
+
+    override fun provideMovieRepository(): MovieRepository = jsonMovieRepository
 }
